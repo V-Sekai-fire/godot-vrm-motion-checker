@@ -756,6 +756,10 @@ func _export_preflight(gstate: GLTFState, root: Node) -> Error:
 			if n is AnimationPlayer:
 				anim_player = n
 				break
+	if anim_player != null:
+		gstate.set_meta("anim_player", anim_player)
+		anim_player.owner = null
+		root.remove_child(anim_player)
 	gstate.set_meta("vrm_extension", vrm_extension)
 	gstate.set_meta("look_offset", Vector3.ZERO)
 

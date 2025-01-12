@@ -3,8 +3,6 @@ extends GLTFDocumentExtension
 const vrm_constants_class = preload("./vrm_constants.gd")
 const vrm_meta_class = preload("./vrm_meta.gd")
 const vrm_secondary = preload("./vrm_secondary.gd")
-const vrm_collider_group = preload("./vrm_collider_group.gd")
-const vrm_collider = preload("./vrm_collider.gd")
 const vrm_top_level = preload("./vrm_toplevel.gd")
 
 const importer_mesh_attributes = preload("./importer_mesh_attributes.gd")
@@ -710,43 +708,8 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 
 	var offset_flip: Vector3 = Vector3(-1, 1, 1) if is_vrm_0 else Vector3(1, 1, 1)
 
-	var collider_groups: Array[vrm_collider_group]
-	for cgroup in vrm_extension["secondaryAnimation"]["colliderGroups"]:
-		var gltfnode: GLTFNode = nodes[int(cgroup["node"])]
-		var collider_group: vrm_collider_group = vrm_collider_group.new()
-		var node_path: NodePath
-		var bone: String = ""
-		var new_resource_name: String = ""
-		var pose_diff: Basis = Basis()
-		if gltfnode.skeleton == -1:
-			var found_node: Node = gstate.get_scene_node(int(cgroup["node"]))
-			node_path = secondary_node.get_path_to(found_node)
-			bone = ""
-			new_resource_name = found_node.name
-		else:
-			var skeleton: Skeleton3D = _get_skel_godot_node(gstate, nodes, skeletons, gltfnode.skeleton)
-			bone = nodes[int(cgroup["node"])].resource_name
-			new_resource_name = bone
-			pose_diff = pose_diffs[skeleton.find_bone(bone)]
-
-		for collider_info in cgroup["colliders"]:
-			var collider: vrm_collider = vrm_collider.new()
-			collider.node_path = node_path
-			collider.bone = bone
-			collider.resource_name = new_resource_name
-			var offset_obj = collider_info.get("offset", {"x": 0.0, "y": 0.0, "z": 0.0})
-			var offset_vec = offset_flip * Vector3(offset_obj["x"], offset_obj["y"], offset_obj["z"])
-			# beware that quat * vec * vec multiplication is not associative
-			var local_pos: Vector3 = pose_diff * offset_vec
-			var radius: float = collider_info.get("radius", 0.0)
-			collider.is_capsule = false
-			collider.offset = local_pos
-			collider.tail = local_pos
-			collider.radius = radius
-			collider_group.colliders.append(collider)
-		collider_groups.append(collider_group)
-
 	var spring_bones: Array[SpringBoneSimulator3D]
+	
 	for sbone in vrm_extension["secondaryAnimation"]["boneGroups"]:
 		if sbone.get("bones", []).size() == 0:
 			continue
@@ -764,11 +727,7 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 		var drag_force = float(sbone.get("dragForce", 0.4))
 		var hit_radius = float(sbone.get("hitRadius", 0.02))
 
-		var spring_collider_groups: Array[vrm_collider_group]
-		for cgroup_idx in sbone.get("colliderGroups", []):
-			spring_collider_groups.append(collider_groups[int(cgroup_idx)])
-
-		# Append to indiviudal packed arrays
+		# Append to individual packed arrays
 		var joint_chains: Array[PackedStringArray]
 		for bone_node in sbone["bones"]:
 			_create_joints_recursive(joint_chains, skeleton, skeleton.find_bone(nodes[int(bone_node)].resource_name), 1, -1)
@@ -793,12 +752,42 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 		var spring_bone: SpringBoneSimulator3D = SpringBoneSimulator3D.new()
 		skeleton.add_child(spring_bone, true)
 		spring_bone.owner = skeleton.owner
+		
+		
+		for cgroup_idx in sbone.get("colliderGroups", []):
+			var node_path: NodePath
+			var bone: String = ""
+			var new_resource_name: String = ""
+			var pose_diff: Basis = Basis()
+			if gltfnode.skeleton == -1:
+				var found_node: Node = gstate.get_scene_node(cgroup_idx)
+				node_path = secondary_node.get_path_to(found_node)
+				bone = ""
+				new_resource_name = found_node.name
+			else:
+				bone = nodes[cgroup_idx].resource_name
+				new_resource_name = bone
+				pose_diff = pose_diffs[skeleton.find_bone(bone)]
+
+			for collider_info in vrm_extension["secondaryAnimation"]["colliderGroups"][cgroup_idx]["colliders"]:
+				var collider: SpringBoneCollisionSphere3D = SpringBoneCollisionSphere3D.new()
+				spring_bone.add_child(collider)
+				collider.owner = skeleton.owner
+				collider.bone = skeleton.find_bone(bone)
+				collider.name = new_resource_name
+				var offset_obj = collider_info.get("offset", {"x": 0.0, "y": 0.0, "z": 0.0})
+				var offset_vec = offset_flip * Vector3(offset_obj["x"], offset_obj["y"], offset_obj["z"])
+				# beware that quat * vec * vec multiplication is not associative
+				var local_pos: Vector3 = pose_diff * offset_vec
+				var radius: float = collider_info.get("radius", 0.0)
+				collider.set_position_offset(local_pos)
+				collider.radius = radius
+		
 		spring_bone.setting_count = joint_chains.size()
 		for chain_i in range(joint_chains.size()):
 			var chain: Array = joint_chains[chain_i]
 			spring_bone.set_center_bone_name(chain_i, center_bone)
 			#spring_bone.center_node = center_node
-			spring_bone.collider_groups = spring_collider_groups
 			var root_bone = skeleton.find_bone(chain.front())
 			spring_bone.set_root_bone(chain_i, root_bone)
 			var end_bone = skeleton.find_bone(chain.back())

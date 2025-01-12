@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Fire Motion Check Game Project"
+run/main_scene="uid://6o7drtalvvj7"
 config/features=PackedStringArray("4.4", "Double Precision", "Forward Plus")
 config/icon="res://icon.svg"
 

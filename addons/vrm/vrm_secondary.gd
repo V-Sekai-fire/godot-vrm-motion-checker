@@ -2,7 +2,6 @@
 class_name VRMSecondary
 extends Node3D
 
-const spring_bone_class = preload("./vrm_spring_bone.gd")
 const collider_class = preload("./vrm_collider.gd")
 const collider_group_class = preload("./vrm_collider_group.gd")
 
@@ -58,9 +57,7 @@ const collider_group_class = preload("./vrm_collider_group.gd")
 		if Engine.is_editor_hint() and is_inside_tree():
 			if value:
 				_ready()
-			else:
-				for spring_bone in spring_bones_internal:
-					spring_bone.skel.clear_bones_global_pose_override()
+
 @export var gizmo_spring_bone: bool = false:
 	set(value):
 		gizmo_spring_bone = value
@@ -81,7 +78,7 @@ const collider_group_class = preload("./vrm_collider_group.gd")
 		if is_inside_tree():
 			_ready()
 
-@export var spring_bones: Array[spring_bone_class]:
+@export var spring_bones: Array[SpringBoneSimulator3D]:
 	set(value):
 		spring_bones = value
 		if is_child_of_vrm:
@@ -92,7 +89,6 @@ var internal_modifier_node: Node3D
 
 # Props
 
-var spring_bones_internal: Array[spring_bone_class.SpringBoneRuntimeState]
 var springs_centers: PackedInt32Array
 
 var colliders_internal: Array[collider_class.VrmRuntimeCollider]
@@ -111,7 +107,6 @@ var modify_gravity: bool = false
 
 @export var collider_groups: Array[collider_group_class] # Unused, but this way we don't break script compatibility.
 @export var collider_library: Array[collider_class] # Unused, intended to make inspecting easier
-var spring_bones_cached: Array[spring_bone_class]
 
 func _on_recreate_collider():
 	colliders_changed = true
@@ -141,7 +136,6 @@ func _ready() -> void:
 		skel.add_child(internal_modifier_node, false, Node.INTERNAL_MODE_BACK)
 		internal_modifier_node.connect(&"modification_processed", self._on_secondary_process_modification_processed)
 
-	spring_bones_cached = spring_bones
 	var gizmo_spring_bone: bool = false
 	if get_parent() != null and get_parent().script != null and get_parent().script.resource_path.get_file() == "vrm_toplevel.gd":
 		is_child_of_vrm = true
@@ -157,77 +151,75 @@ func _ready() -> void:
 		secondary_gizmo = SecondaryGizmo.new(self)
 		skel.add_child(secondary_gizmo, true, Node.INTERNAL_MODE_FRONT)
 	colliders_internal.clear()
-	spring_bones_internal.clear()
 	colliders_centers.clear()
 	center_bones.clear()
 	center_nodes.clear()
 	center_transforms.clear()
 	center_transforms_inv.clear()
-	var center_to_collider_to_internal: Dictionary = {}
-	var center_to_index: Dictionary = {}
-	for spring_bone in spring_bones:
-		if not spring_bone:
-			spring_bone = spring_bone_class.new()
-		var center_key: Variant = spring_bone.center_bone
-		if spring_bone.center_bone == "":
-			center_key = spring_bone.center_node
+	#var center_to_collider_to_internal: Dictionary = {}
+	#var center_to_index: Dictionary = {}
+	#for spring_bone in spring_bones:
+		#if not spring_bone:
+			#spring_bone = SpringBoneSimulator3D.new()
+		#var center_key: Variant = spring_bone.center_bone
+		#if spring_bone.center_bone == "":
+			#center_key = spring_bone.center_node
+#
+		#if not center_to_index.has(center_key):
+			#center_to_index[center_key] = len(center_bones)
+			#if spring_bone.center_bone != "":
+				#center_bones.push_back(skel.find_bone(spring_bone.center_bone))
+			#else:
+				#center_bones.push_back(-1)
+			#if spring_bone.center_node == NodePath():
+				#center_nodes.push_back(null)
+			#else:
+				#center_nodes.push_back(get_node(spring_bone.center_node))
+			#center_transforms.push_back(Transform3D.IDENTITY)
+			#center_transforms_inv.push_back(Transform3D.IDENTITY)
+#
+	#update_centers(skel.global_transform)
 
-		if not center_to_index.has(center_key):
-			center_to_index[center_key] = len(center_bones)
-			if spring_bone.center_bone != "":
-				center_bones.push_back(skel.find_bone(spring_bone.center_bone))
-			else:
-				center_bones.push_back(-1)
-			if spring_bone.center_node == NodePath():
-				center_nodes.push_back(null)
-			else:
-				center_nodes.push_back(get_node(spring_bone.center_node))
-			center_transforms.push_back(Transform3D.IDENTITY)
-			center_transforms_inv.push_back(Transform3D.IDENTITY)
-
-	update_centers(skel.global_transform)
-
-	collider_groups.clear()
-	collider_library.clear()
-	var seen_collider_groups: Dictionary
-	var seen_colliders: Dictionary
-	for spring_bone in spring_bones:
-		if not spring_bone:
-			spring_bone = spring_bone_class.new()
-		var center_key: Variant = spring_bone.center_bone
-		if spring_bone.center_bone == "":
-			center_key = spring_bone.center_node
-		var center_idx: int = center_to_index[center_key]
-
-		var tmp_colliders: Array[collider_class.VrmRuntimeCollider] = []
-		for collider_group in spring_bone.collider_groups:
-			if not seen_collider_groups.has(collider_group):
-				seen_collider_groups[collider_group] = true
-				collider_groups.append(collider_group)
-			for collider in collider_group.colliders:
-				if not seen_colliders.has(collider):
-					seen_colliders[collider] = true
-					collider_library.append(collider)
-				if not collider.recreate_collider.is_connected(self._on_recreate_collider):
-					collider.recreate_collider.connect(self._on_recreate_collider) # Rebuild everything if anything changes.
-				var collider_runtime: collider_class.VrmRuntimeCollider
-				if center_key not in center_to_collider_to_internal:
-					center_to_collider_to_internal[center_key] = {}
-				if center_to_collider_to_internal[center_key].has(collider):
-					collider_runtime = center_to_collider_to_internal[center_key][collider]
-				else:
-					collider_runtime = collider.create_runtime(self, skel)
-					collider_runtime.gizmo_color = collider.gizmo_color
-					colliders_internal.append(collider_runtime)
-					colliders_centers.append(center_idx)
-					center_to_collider_to_internal[center_key][collider] = collider_runtime
-				tmp_colliders.append(collider_runtime)
-
-		var new_spring_bone := spring_bone.create_runtime(skel)
-		new_spring_bone.ready(skel, tmp_colliders, center_transforms_inv[center_idx])
-		new_spring_bone.disable_colliders = disable_colliders
-		spring_bones_internal.append(new_spring_bone)
-		springs_centers.append(center_idx)
+	#collider_groups.clear()
+	#collider_library.clear()
+	#var seen_collider_groups: Dictionary
+	#var seen_colliders: Dictionary
+	#for spring_bone in spring_bones:
+		#if not spring_bone:
+			#spring_bone = SpringBoneSimulator3D.new()
+		#var center_key: Variant = spring_bone.center_bone
+		#if spring_bone.center_bone == "":
+			#center_key = spring_bone.center_node
+		#var center_idx: int = center_to_index[center_key]
+#
+		#var tmp_colliders: Array[collider_class.VrmRuntimeCollider] = []
+		#for collider_group in spring_bone.collider_groups:
+			#if not seen_collider_groups.has(collider_group):
+				#seen_collider_groups[collider_group] = true
+				#collider_groups.append(collider_group)
+			#for collider in collider_group.colliders:
+				#if not seen_colliders.has(collider):
+					#seen_colliders[collider] = true
+					#collider_library.append(collider)
+				#if not collider.recreate_collider.is_connected(self._on_recreate_collider):
+					#collider.recreate_collider.connect(self._on_recreate_collider) # Rebuild everything if anything changes.
+				#var collider_runtime: collider_class.VrmRuntimeCollider
+				#if center_key not in center_to_collider_to_internal:
+					#center_to_collider_to_internal[center_key] = {}
+				#if center_to_collider_to_internal[center_key].has(collider):
+					#collider_runtime = center_to_collider_to_internal[center_key][collider]
+				#else:
+					#collider_runtime = collider.create_runtime(self, skel)
+					#collider_runtime.gizmo_color = collider.gizmo_color
+					#colliders_internal.append(collider_runtime)
+					#colliders_centers.append(center_idx)
+					#center_to_collider_to_internal[center_key][collider] = collider_runtime
+				#tmp_colliders.append(collider_runtime)
+#
+		#var new_spring_bone = spring_bone.create_runtime(skel)
+		#new_spring_bone.ready(skel, tmp_colliders, center_transforms_inv[center_idx])
+		#new_spring_bone.disable_colliders = disable_colliders
+		#springs_centers.append(center_idx)
 
 
 func check_for_editor_update() -> bool:
@@ -265,59 +257,60 @@ func update_centers(skel_transform: Transform3D):
 
 
 func tick_spring_bones(delta: float) -> void:
+	pass
 	# force update skeleton
 
-	if skel == null:
-		return
-	var skel_transform: Transform3D = skel.global_transform
+	# if skel == null:
+	# 	return
+	# var skel_transform: Transform3D = skel.global_transform
 
-	update_centers(skel_transform)
+	# update_centers(skel_transform)
 
-	var needs_reintialize: bool = false
-	# our setter syncs it the other direction.
-	if is_child_of_vrm:
-		var parent: Node = get_parent()
-	var parent: Node = get_parent()
-	if is_child_of_vrm:
-		if parent.springbone_gravity_rotation != springbone_gravity_rotation or parent.springbone_gravity_multiplier != springbone_gravity_multiplier or parent.springbone_add_force != springbone_add_force:
-			springbone_add_force = parent.springbone_add_force
-			springbone_gravity_rotation = parent.springbone_gravity_rotation
-			springbone_gravity_multiplier = parent.springbone_gravity_multiplier
-			modify_gravity = true
-		if parent.disable_colliders != disable_colliders:
-			disable_colliders = parent.disable_colliders
-			for sb in spring_bones_internal:
-				sb.disable_colliders = disable_colliders
-		override_springbone_center = parent.override_springbone_center
-		default_springbone_center = parent.default_springbone_center
-		if spring_bones != parent.spring_bones:
-			spring_bones = parent.spring_bones
-			needs_reintialize = true
-	if modify_gravity:
-		for sb in spring_bones_internal:
-			sb.add_force = springbone_add_force
-			sb.gravity_rotation = springbone_gravity_rotation
-			sb.gravity_multiplier = springbone_gravity_multiplier
-	for spring_i in range(len(spring_bones_internal)):
-		needs_reintialize = spring_bones_internal[spring_i].pre_update() or needs_reintialize
+	# var needs_reintialize: bool = false
+	# # our setter syncs it the other direction.
+	# if is_child_of_vrm:
+	# 	var parent: Node = get_parent()
+	# var parent: Node = get_parent()
+	# if is_child_of_vrm:
+	# 	if parent.springbone_gravity_rotation != springbone_gravity_rotation or parent.springbone_gravity_multiplier != springbone_gravity_multiplier or parent.springbone_add_force != springbone_add_force:
+	# 		springbone_add_force = parent.springbone_add_force
+	# 		springbone_gravity_rotation = parent.springbone_gravity_rotation
+	# 		springbone_gravity_multiplier = parent.springbone_gravity_multiplier
+	# 		modify_gravity = true
+	# 	if parent.disable_colliders != disable_colliders:
+	# 		disable_colliders = parent.disable_colliders
+	# 		for sb in spring_bones_internal:
+	# 			sb.disable_colliders = disable_colliders
+	# 	override_springbone_center = parent.override_springbone_center
+	# 	default_springbone_center = parent.default_springbone_center
+	# 	if spring_bones != parent.spring_bones:
+	# 		spring_bones = parent.spring_bones
+	# 		needs_reintialize = true
+	# if modify_gravity:
+	# 	for sb in spring_bones_internal:
+	# 		sb.add_force = springbone_add_force
+	# 		sb.gravity_rotation = springbone_gravity_rotation
+	# 		sb.gravity_multiplier = springbone_gravity_multiplier
+	# for spring_i in range(len(spring_bones_internal)):
+	# 	needs_reintialize = spring_bones_internal[spring_i].pre_update() or needs_reintialize
 
-	if needs_reintialize or colliders_changed or spring_bones_cached != spring_bones:
-		colliders_changed = false
-		skel.clear_bones_global_pose_override()
-		_ready()
-		for spring_i in range(len(spring_bones_internal)):
-			spring_bones_internal[spring_i].pre_update()
+	# if needs_reintialize or colliders_changed or spring_bones_cached != spring_bones:
+	# 	colliders_changed = false
+	# 	skel.clear_bones_global_pose_override()
+	# 	_ready()
+	# 	for spring_i in range(len(spring_bones_internal)):
+	# 		spring_bones_internal[spring_i].pre_update()
 
-	for collider_i in range(len(colliders_internal)):
-		colliders_internal[collider_i].update(skel_transform, center_transforms[colliders_centers[collider_i]], skel)
-	for spring_i in range(len(spring_bones_internal)):
-		spring_bones_internal[spring_i].update(delta, center_transforms[springs_centers[spring_i]], center_transforms_inv[springs_centers[spring_i]])
+	# for collider_i in range(len(colliders_internal)):
+	# 	colliders_internal[collider_i].update(skel_transform, center_transforms[colliders_centers[collider_i]], skel)
+	# for spring_i in range(len(spring_bones_internal)):
+	# 	spring_bones_internal[spring_i].update(delta, center_transforms[springs_centers[spring_i]], center_transforms_inv[springs_centers[spring_i]])
 
-	if secondary_gizmo != null:
-		if Engine.is_editor_hint():
-			secondary_gizmo.draw_in_editor(true)
-		else:
-			secondary_gizmo.draw_in_game()
+	# if secondary_gizmo != null:
+	# 	if Engine.is_editor_hint():
+	# 		secondary_gizmo.draw_in_editor(true)
+	# 	else:
+	# 		secondary_gizmo.draw_in_game()
 
 
 func _process(delta: float):

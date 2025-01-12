@@ -5,7 +5,6 @@ const vrm_meta_class = preload("./vrm_meta.gd")
 const vrm_secondary = preload("./vrm_secondary.gd")
 const vrm_collider_group = preload("./vrm_collider_group.gd")
 const vrm_collider = preload("./vrm_collider.gd")
-const vrm_spring_bone = preload("./vrm_spring_bone.gd")
 const vrm_top_level = preload("./vrm_toplevel.gd")
 
 const importer_mesh_attributes = preload("./importer_mesh_attributes.gd")
@@ -693,10 +692,7 @@ func _create_joints_recursive(joint_chains: Array[PackedStringArray], skeleton: 
 	if current_chain != -1:
 		joint_chains[current_chain].push_back(skeleton.get_bone_name(bone_idx))
 	var bone_children = skeleton.get_bone_children(bone_idx)
-	if bone_children.is_empty():
-		if current_chain != -1:  # and len(joint_chains[current_chain]) > 0 is guaranteed true
-			joint_chains[current_chain].push_back("")  # Use empty string to denote 7cm tail bone.
-	else:
+	if not bone_children.is_empty():
 		for i in range(len(bone_children)):
 			var child_bone: int = bone_children[i]
 			if i == 0:
@@ -750,7 +746,7 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 			collider_group.colliders.append(collider)
 		collider_groups.append(collider_group)
 
-	var spring_bones: Array[vrm_spring_bone]
+	var spring_bones: Array[SpringBoneSimulator3D]
 	for sbone in vrm_extension["secondaryAnimation"]["boneGroups"]:
 		if sbone.get("bones", []).size() == 0:
 			continue
@@ -794,24 +790,34 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 					printerr("Failed to find center scene node " + str(center_node_idx))
 					center_node = secondary_node.get_path_to(secondary_node)  # Fallback
 
-		for chain in joint_chains:
-			var spring_bone: vrm_spring_bone = vrm_spring_bone.new()
-			spring_bone.comment = comment
-			spring_bone.center_bone = center_bone
-			spring_bone.center_node = center_node
+		var spring_bone: SpringBoneSimulator3D = SpringBoneSimulator3D.new()
+		skeleton.add_child(spring_bone, true)
+		spring_bone.owner = skeleton.owner
+		spring_bone.setting_count = joint_chains.size()
+		for chain_i in range(joint_chains.size()):
+			var chain: Array = joint_chains[chain_i]
+			spring_bone.set_center_bone_name(chain_i, center_bone)
+			#spring_bone.center_node = center_node
 			spring_bone.collider_groups = spring_collider_groups
-			for bone_name in chain:
-				spring_bone.joint_nodes.push_back(bone_name)  # end bone will be named ""
-			spring_bone.stiffness_scale = stiffness_force
-			spring_bone.gravity_scale = gravity_power
-			spring_bone.gravity_dir_default = gravity_dir
-			spring_bone.drag_force_scale = drag_force
-			spring_bone.hit_radius_scale = hit_radius
+			var root_bone = skeleton.find_bone(chain.front())
+			spring_bone.set_root_bone(chain_i, root_bone)
+			var end_bone = skeleton.find_bone(chain.back())
+			spring_bone.set_end_bone(chain_i, end_bone)
+			spring_bone.individual_config = false
+			spring_bone.set_stiffness(chain_i, stiffness_force)
+			spring_bone.set_gravity(chain_i, gravity_power)
+			spring_bone.set_gravity_direction(chain_i, gravity_dir)
+			spring_bone.set_drag(chain_i, drag_force)
+			spring_bone.set_radius(chain_i, hit_radius)
+
+			if is_vrm_0:
+				spring_bone.set_extend_end_bone(chain_i, true)
+				spring_bone.set_end_bone_tip_radius(chain_i, 0.07)
 
 			if not comment.is_empty():
-				spring_bone.resource_name = comment.split("\n")[0]
+				spring_bone.name = comment.split("\n")[0]
 			else:
-				spring_bone.resource_name = chain[0]
+				spring_bone.name = chain[0]
 
 			spring_bones.append(spring_bone)
 
@@ -970,7 +976,7 @@ func _import_post(gstate: GLTFState, node: Node) -> Error:
 	root_node.set("vrm_meta", vrm_meta)
 
 	if vrm_extension.has("secondaryAnimation") and (vrm_extension["secondaryAnimation"].get("colliderGroups", []).size() > 0 or vrm_extension["secondaryAnimation"].get("boneGroups", []).size() > 0):
-		var secondary_node: Node = root_node.get_node("secondary")
+		var secondary_node: Node = root_node.get_node_or_null("secondary")
 		if secondary_node == null:
 			secondary_node = Node3D.new()
 			root_node.add_child(secondary_node, true)

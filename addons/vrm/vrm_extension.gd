@@ -771,14 +771,18 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 				if has_child:
 					collider.queue_free()
 					continue
-				main_spring_bone.add_child(collider)
+				main_spring_bone.add_child(collider, true)
 				collider.owner = skeleton.owner
 				collider.bone = skeleton.find_bone(bone_name)
 				var offset_obj = collider_info.get("offset", {"x": 0.0, "y": 0.0, "z": 0.0})
-				var offset_vec = offset_flip * Vector3(offset_obj["x"], offset_obj["y"], offset_obj["z"])
+				var offset_vec: Vector3
+				if is_vrm_0:
+					offset_flip * Vector3(offset_obj["z"], offset_obj["y"], offset_obj["x"])
+				else:
+					offset_flip * Vector3(offset_obj["x"], offset_obj["y"], offset_obj["z"])
 				var local_pos: Vector3 = pose_diff * offset_vec
 				var radius: float = collider_info.get("radius", 0.0)
-				collider.set_position_offset(local_pos)
+				collider.set_position_offset(offset_vec)
 				collider.radius = radius
 
 		main_spring_bone.setting_count += joint_chains.size()

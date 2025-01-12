@@ -759,14 +759,6 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 
 		# Add colliders to main spring node
 		for cgroup_idx in sbone.get("colliderGroups", []):
-			var bone_name: String = ""
-			var pose_diff: Basis = Basis()
-			if gltfnode.skeleton == -1:
-				var found_node: Node = gstate.get_scene_node(cgroup_idx)
-				bone_name = String()
-			else:
-				bone_name = nodes[cgroup_idx].resource_name
-				pose_diff = pose_diffs[skeleton.find_bone(bone_name)]
 			if not added_colliders.has(cgroup_idx):
 				var node: int = vrm_extension["secondaryAnimation"]["colliderGroups"][cgroup_idx].get("node", -1)
 				var collider_gltf_node: GLTFNode = nodes[node]

@@ -784,7 +784,9 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 			var root_bone = skeleton.find_bone(chain.front())
 			var end_bone = skeleton.find_bone(chain.back())
 			main_spring_bone.set_root_bone(chain_i, root_bone)
+			main_spring_bone.set_root_bone_name(chain_i, chain.front())
 			main_spring_bone.set_end_bone(chain_i, end_bone)
+			main_spring_bone.set_end_bone_name(chain_i, chain.back())
 			main_spring_bone.individual_config = false
 			main_spring_bone.set_stiffness(chain_i, stiffness_force)
 			main_spring_bone.set_gravity(chain_i, gravity_power)

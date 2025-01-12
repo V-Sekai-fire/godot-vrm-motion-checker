@@ -768,16 +768,19 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 				bone_name = nodes[cgroup_idx].resource_name
 				pose_diff = pose_diffs[skeleton.find_bone(bone_name)]
 			if not added_colliders.has(cgroup_idx):
+				var node: int = vrm_extension["secondaryAnimation"]["colliderGroups"][cgroup_idx].get("node", -1)
+				var collider_gltf_node: GLTFNode = nodes[node]
+				var collider_bone_name = collider_gltf_node.resource_name
 				for collider_info in vrm_extension["secondaryAnimation"]["colliderGroups"][cgroup_idx]["colliders"]:
 					var collider: SpringBoneCollisionSphere3D = SpringBoneCollisionSphere3D.new()
-					collider.name = bone_name
-					main_spring_bone.add_child(collider)
-					collider.bone = skeleton.find_bone(bone_name)
+					collider.name = collider_bone_name
+					main_spring_bone.add_child(collider, true)
+					collider.bone = skeleton.find_bone(collider_gltf_node.resource_name)
 					var offset_obj = collider_info.get("offset", {"x": 0.0, "y": 0.0, "z": 0.0})
 					var offset_vec: Vector3 = offset_flip * Vector3(offset_obj["x"], offset_obj["y"], offset_obj["z"])
 					var radius: float = collider_info.get("radius", 0.0)
 					collider.set_position_offset(offset_vec)
-					collider.bone_name = bone_name
+					collider.bone_name = collider_bone_name
 					collider.owner = skeleton.owner
 					collider.radius = radius
 				added_colliders[cgroup_idx] = true

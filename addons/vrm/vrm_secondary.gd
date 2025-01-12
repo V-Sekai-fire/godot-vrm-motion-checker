@@ -2,6 +2,9 @@
 class_name VRMSecondary
 extends Node3D
 
+const collider_class = preload("./vrm_collider.gd")
+const collider_group_class = preload("./vrm_collider_group.gd")
+
 
 @export_category("Springbone Settings")
 @export var update_secondary_fixed: bool = false:

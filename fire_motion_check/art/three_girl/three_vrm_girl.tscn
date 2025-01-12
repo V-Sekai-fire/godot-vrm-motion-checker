@@ -1,11 +1,11 @@
 [gd_scene load_steps=99 format=3 uid="uid://b5o78u7j3gurw"]
 
 [ext_resource type="PackedScene" uid="uid://ekd4qire07qr" path="res://fire_motion_check/art/three_girl/three-vrm-girl.vrm" id="1_og6qe"]
-[ext_resource type="Script" uid="uid://7yncm2f1n7tn" path="res://addons/vrm/vrm_spring_bone.gd" id="2_6co3l"]
-[ext_resource type="Script" uid="uid://c4kycl3emmhgq" path="res://addons/vrm/vrm_meta.gd" id="2_nshcy"]
-[ext_resource type="Script" uid="uid://b4pjd2ye7d8eb" path="res://addons/vrm/vrm_collider_group.gd" id="3_nshcy"]
-[ext_resource type="Script" uid="uid://di3iy1fnjtxly" path="res://addons/vrm/vrm_collider.gd" id="4_gsgtu"]
-[ext_resource type="AnimationLibrary" uid="uid://dy17sgkhboi57" path="res://fire_motion_check/ANIM_Motion_Check.res" id="6_nshcy"]
+[ext_resource type="Script" uid="uid://cjoychjwppdol" path="res://addons/vrm/vrm_spring_bone.gd" id="2_6co3l"]
+[ext_resource type="Script" uid="uid://dt85tibwveose" path="res://addons/vrm/vrm_meta.gd" id="2_nshcy"]
+[ext_resource type="Script" uid="uid://crqoaeg6oknt0" path="res://addons/vrm/vrm_collider_group.gd" id="3_nshcy"]
+[ext_resource type="Script" uid="uid://cx4b0033tguka" path="res://addons/vrm/vrm_collider.gd" id="4_gsgtu"]
+[ext_resource type="AnimationLibrary" uid="uid://dy17sgkhboi57" path="res://fire_motion_check/art/three_girl_motion_checker/ANIM_Motion_Check.res" id="6_nshcy"]
 
 [sub_resource type="SkeletonProfileHumanoid" id="SkeletonProfileHumanoid_gsgtu"]
 

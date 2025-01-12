@@ -6,3 +6,84 @@
 
 [node name="Head" parent="Root_/GeneralSkeleton" index="6"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000217668, 1.37182, -0.00799575)
+
+[node name="Chest" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00021767, 1.06089, 0.029736)
+
+[node name="UpperChest" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000217682, 1.185, 0.0160929)
+
+[node name="@SpringBoneCollisionSphere3D@113336" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000217682, 1.185, 0.0160929)
+
+[node name="@SpringBoneCollisionSphere3D@113337" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000217682, 1.185, 0.0160929)
+
+[node name="J_Sec_R_Bust1" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0537587, 1.15778, 0.0751636)
+
+[node name="@SpringBoneCollisionSphere3D@113338" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0537587, 1.15778, 0.0751636)
+
+[node name="@SpringBoneCollisionSphere3D@113339" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0537587, 1.15778, 0.0751636)
+
+[node name="J_Sec_L_Bust1" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0533233, 1.15778, 0.0751636)
+
+[node name="@SpringBoneCollisionSphere3D@113340" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0533233, 1.15778, 0.0751636)
+
+[node name="@SpringBoneCollisionSphere3D@113341" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="9"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0533233, 1.15778, 0.0751636)
+
+[node name="@SpringBoneCollisionSphere3D@113342" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="10"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0533233, 1.15778, 0.0751636)
+
+[node name="J_Sec_R_Bust2" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="11"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0677296, 1.16083, 0.102937)
+
+[node name="@SpringBoneCollisionSphere3D@113343" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="12"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0677296, 1.16083, 0.102937)
+
+[node name="@SpringBoneCollisionSphere3D@113344" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="13"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0677296, 1.16083, 0.102937)
+
+[node name="@SpringBoneCollisionSphere3D@113345" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="14"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0677296, 1.16083, 0.102937)
+
+[node name="J_Sec_L_Bust2" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="15"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0672942, 1.16083, 0.102937)
+
+[node name="Neck" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="16"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000217691, 1.29961, -0.0173027)
+
+[node name="Hips" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="17"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000217693, 0.893992, 0.00574204)
+
+[node name="@SpringBoneCollisionSphere3D@113346" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="18"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000217693, 0.893992, 0.00574204)
+
+[node name="@SpringBoneCollisionSphere3D@113347" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="19"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000217693, 0.893992, 0.00574204)
+
+[node name="Spine" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="21"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000217686, 0.946906, 0.0155667)
+
+[node name="Head" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="22"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000217668, 1.37182, -0.00799575)
+
+[node name="@SpringBoneCollisionSphere3D@113348" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="23"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000217668, 1.37182, -0.00799575)
+
+[node name="@SpringBoneCollisionSphere3D@113349" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="24"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000217668, 1.37182, -0.00799575)
+
+[node name="LeftEye" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="25"]
+transform = Transform3D(1, 0, 0, 0, -2.22045e-16, -1, 0, 1, -2.22045e-16, 0.0206199, 1.43397, 0.0203641)
+
+[node name="@SpringBoneCollisionSphere3D@113350" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="26"]
+transform = Transform3D(1, 0, 0, 0, -2.22045e-16, -1, 0, 1, -2.22045e-16, 0.0206199, 1.43397, 0.0203641)
+
+[node name="@SpringBoneCollisionSphere3D@113351" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="27"]
+transform = Transform3D(1, 0, 0, 0, -2.22045e-16, -1, 0, 1, -2.22045e-16, 0.0206199, 1.43397, 0.0203641)

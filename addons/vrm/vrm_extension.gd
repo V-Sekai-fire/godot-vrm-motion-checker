@@ -773,7 +773,7 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 				var collider: SpringBoneCollisionSphere3D = SpringBoneCollisionSphere3D.new()
 				spring_bone.add_child(collider)
 				collider.owner = skeleton.owner
-				collider.bone = skeleton.find_bone(bone)
+				collider.bone_name = bone
 				collider.name = new_resource_name
 				var offset_obj = collider_info.get("offset", {"x": 0.0, "y": 0.0, "z": 0.0})
 				var offset_vec = offset_flip * Vector3(offset_obj["x"], offset_obj["y"], offset_obj["z"])

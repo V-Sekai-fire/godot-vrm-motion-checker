@@ -715,6 +715,9 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 	# We'll collect bone groups into one node
 	var spring_bones = [main_spring_bone]
 
+	# Track added colliders to avoid duplication
+	var added_colliders: Dictionary = {}
+
 	for sbone in vrm_extension["secondaryAnimation"]["boneGroups"]:
 		if sbone.get("bones", []).size() == 0:
 			continue
@@ -760,30 +763,24 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 			var pose_diff: Basis = Basis()
 			if gltfnode.skeleton == -1:
 				var found_node: Node = gstate.get_scene_node(cgroup_idx)
-				bone_name = ""
+				bone_name = String()
 			else:
 				bone_name = nodes[cgroup_idx].resource_name
 				pose_diff = pose_diffs[skeleton.find_bone(bone_name)]
-			for collider_info in vrm_extension["secondaryAnimation"]["colliderGroups"][cgroup_idx]["colliders"]:
-				var collider: SpringBoneCollisionSphere3D = SpringBoneCollisionSphere3D.new()
-				collider.name = bone_name
-				var has_child = main_spring_bone.find_child(bone_name)
-				if has_child:
-					collider.queue_free()
-					continue
-				main_spring_bone.add_child(collider, true)
-				collider.owner = skeleton.owner
-				collider.bone = skeleton.find_bone(bone_name)
-				var offset_obj = collider_info.get("offset", {"x": 0.0, "y": 0.0, "z": 0.0})
-				var offset_vec: Vector3
-				if is_vrm_0:
-					offset_flip * Vector3(offset_obj["z"], offset_obj["y"], offset_obj["x"])
-				else:
-					offset_flip * Vector3(offset_obj["x"], offset_obj["y"], offset_obj["z"])
-				var local_pos: Vector3 = pose_diff * offset_vec
-				var radius: float = collider_info.get("radius", 0.0)
-				collider.set_position_offset(offset_vec)
-				collider.radius = radius
+			if not added_colliders.has(cgroup_idx):
+				for collider_info in vrm_extension["secondaryAnimation"]["colliderGroups"][cgroup_idx]["colliders"]:
+					var collider: SpringBoneCollisionSphere3D = SpringBoneCollisionSphere3D.new()
+					collider.name = bone_name
+					main_spring_bone.add_child(collider, true)
+					collider.owner = skeleton.owner
+					collider.bone = skeleton.find_bone(bone_name)
+					var offset_obj = collider_info.get("offset", {"x": 0.0, "y": 0.0, "z": 0.0})
+					var offset_vec: Vector3 = offset_flip * Vector3(offset_obj["x"], offset_obj["y"], offset_obj["z"])
+					var local_pos: Vector3 = pose_diff * offset_vec
+					var radius: float = collider_info.get("radius", 0.0)
+					collider.set_position_offset(offset_vec)
+					collider.radius = radius
+				added_colliders[cgroup_idx] = true
 
 		main_spring_bone.setting_count += joint_chains.size()
 		for chain_i in range(joint_chains.size()):

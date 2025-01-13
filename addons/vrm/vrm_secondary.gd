@@ -2,9 +2,6 @@
 class_name VRMSecondary
 extends Node3D
 
-const collider_class = preload("./vrm_collider.gd")
-const collider_group_class = preload("./vrm_collider_group.gd")
-
 
 @export_category("Springbone Settings")
 @export var update_secondary_fixed: bool = false:
@@ -91,7 +88,6 @@ var internal_modifier_node: Node3D
 
 var springs_centers: PackedInt32Array
 
-var colliders_internal: Array[collider_class.VrmRuntimeCollider]
 var colliders_centers: PackedInt32Array
 var center_bones: PackedInt32Array
 var center_nodes: Array[Node3D]
@@ -104,9 +100,6 @@ var secondary_gizmo: SecondaryGizmo
 var is_child_of_vrm: bool = false
 var colliders_changed: bool = false
 var modify_gravity: bool = false
-
-@export var collider_groups: Array[collider_group_class] # Unused, but this way we don't break script compatibility.
-@export var collider_library: Array[collider_class] # Unused, intended to make inspecting easier
 
 func _on_recreate_collider():
 	colliders_changed = true
@@ -141,8 +134,6 @@ func _ready() -> void:
 		is_child_of_vrm = true
 	if is_child_of_vrm:
 		get_parent().spring_bones = spring_bones
-		get_parent().collider_groups = collider_groups
-		get_parent().collider_library = collider_library
 		update_secondary_fixed = get_parent().get("update_secondary_fixed")
 		gizmo_spring_bone = get_parent().get("gizmo_spring_bone")
 		disable_colliders = get_parent().get("disable_colliders")
@@ -150,8 +141,6 @@ func _ready() -> void:
 	if secondary_gizmo == null and (Engine.is_editor_hint() or gizmo_spring_bone):
 		secondary_gizmo = SecondaryGizmo.new(self)
 		skel.add_child(secondary_gizmo, true, Node.INTERNAL_MODE_FRONT)
-	colliders_internal.clear()
-	colliders_centers.clear()
 	center_bones.clear()
 	center_nodes.clear()
 	center_transforms.clear()
@@ -344,8 +333,6 @@ func do_process(delta: float) -> void:
 			if skel != null:
 				var skel_transform: Transform3D = skel.global_transform
 				update_centers(skel_transform)
-				for collider_i in range(len(colliders_internal)):
-					colliders_internal[collider_i].update(skel_transform, center_transforms[colliders_centers[collider_i]], skel)
 				secondary_gizmo.draw_in_editor()
 
 

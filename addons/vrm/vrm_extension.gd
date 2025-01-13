@@ -770,6 +770,7 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 					collider.bone = skeleton.find_bone(collider_gltf_node.resource_name)
 					var offset_obj = collider_info.get("offset", {"x": 0.0, "y": 0.0, "z": 0.0})
 					var offset_vec: Vector3 = offset_flip * Vector3(offset_obj["x"], offset_obj["y"], offset_obj["z"])
+					offset_vec = pose_diffs[skeleton.find_bone(collider_bone_name)] * offset_vec
 					var radius: float = collider_info.get("radius", 0.0)
 					collider.set_position_offset(offset_vec)
 					collider.bone_name = collider_bone_name

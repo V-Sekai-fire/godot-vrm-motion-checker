@@ -3,9 +3,6 @@ extends GLTFDocumentExtension
 const vrm_constants_class = preload("./vrm_constants.gd")
 const vrm_meta_class = preload("./vrm_meta.gd")
 const vrm_secondary = preload("./vrm_secondary.gd")
-const vrm_collider_group = preload("./vrm_collider_group.gd")
-const vrm_collider = preload("./vrm_collider.gd")
-const vrm_spring_bone = preload("./vrm_spring_bone.gd")
 const vrm_top_level = preload("./vrm_toplevel.gd")
 
 const importer_mesh_attributes = preload("./importer_mesh_attributes.gd")
@@ -693,10 +690,7 @@ func _create_joints_recursive(joint_chains: Array[PackedStringArray], skeleton: 
 	if current_chain != -1:
 		joint_chains[current_chain].push_back(skeleton.get_bone_name(bone_idx))
 	var bone_children = skeleton.get_bone_children(bone_idx)
-	if bone_children.is_empty():
-		if current_chain != -1:  # and len(joint_chains[current_chain]) > 0 is guaranteed true
-			joint_chains[current_chain].push_back("")  # Use empty string to denote 7cm tail bone.
-	else:
+	if not bone_children.is_empty():
 		for i in range(len(bone_children)):
 			var child_bone: int = bone_children[i]
 			if i == 0:
@@ -709,57 +703,31 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 	var nodes = gstate.get_nodes()
 	var skeletons = gstate.get_skeletons()
 
-	# Assume that all SpringBone are part of one skeleton for now.
-	var skeleton_path: NodePath = secondary_node.get_path_to(secondary_node.get_parent().get_node("%GeneralSkeleton"))
-
+	var skeleton: Skeleton3D = secondary_node.get_parent().get_node("%GeneralSkeleton")
+	var skeleton_path: NodePath = secondary_node.get_path_to(skeleton)
 	var offset_flip: Vector3 = Vector3(-1, 1, 1) if is_vrm_0 else Vector3(1, 1, 1)
 
-	var collider_groups: Array[vrm_collider_group]
-	for cgroup in vrm_extension["secondaryAnimation"]["colliderGroups"]:
-		var gltfnode: GLTFNode = nodes[int(cgroup["node"])]
-		var collider_group: vrm_collider_group = vrm_collider_group.new()
-		var node_path: NodePath
-		var bone: String = ""
-		var new_resource_name: String = ""
-		var pose_diff: Basis = Basis()
-		if gltfnode.skeleton == -1:
-			var found_node: Node = gstate.get_scene_node(int(cgroup["node"]))
-			node_path = secondary_node.get_path_to(found_node)
-			bone = ""
-			new_resource_name = found_node.name
-		else:
-			var skeleton: Skeleton3D = _get_skel_godot_node(gstate, nodes, skeletons, gltfnode.skeleton)
-			bone = nodes[int(cgroup["node"])].resource_name
-			new_resource_name = bone
-			pose_diff = pose_diffs[skeleton.find_bone(bone)]
+	# Create one SpringBone node
+	var main_spring_bone: SpringBoneSimulator3D = SpringBoneSimulator3D.new()
+	skeleton.add_child(main_spring_bone, true)
+	main_spring_bone.owner = skeleton.owner
 
-		for collider_info in cgroup["colliders"]:
-			var collider: vrm_collider = vrm_collider.new()
-			collider.node_path = node_path
-			collider.bone = bone
-			collider.resource_name = new_resource_name
-			var offset_obj = collider_info.get("offset", {"x": 0.0, "y": 0.0, "z": 0.0})
-			var offset_vec = offset_flip * Vector3(offset_obj["x"], offset_obj["y"], offset_obj["z"])
-			# beware that quat * vec * vec multiplication is not associative
-			var local_pos: Vector3 = pose_diff * offset_vec
-			var radius: float = collider_info.get("radius", 0.0)
-			collider.is_capsule = false
-			collider.offset = local_pos
-			collider.tail = local_pos
-			collider.radius = radius
-			collider_group.colliders.append(collider)
-		collider_groups.append(collider_group)
+	# We'll collect bone groups into one node
+	var spring_bones = [main_spring_bone]
 
-	var spring_bones: Array[vrm_spring_bone]
+	# Track added colliders to avoid duplication
+	var added_colliders: Dictionary = {}
+
 	for sbone in vrm_extension["secondaryAnimation"]["boneGroups"]:
 		if sbone.get("bones", []).size() == 0:
 			continue
 		var first_bone_node: int = sbone["bones"][0]
 		var gltfnode: GLTFNode = nodes[int(first_bone_node)]
-		var skeleton: Skeleton3D = _get_skel_godot_node(gstate, nodes, skeletons, gltfnode.skeleton)
+		var this_skeleton: Skeleton3D = _get_skel_godot_node(gstate, nodes, skeletons, gltfnode.skeleton)
+		if skeleton_path != secondary_node.get_path_to(this_skeleton):
+			push_error("boneGroups somehow references a different skeleton... " + str(skeleton_path) + " vs " + str(secondary_node.get_path_to(this_skeleton)))
 
-		if skeleton_path != secondary_node.get_path_to(skeleton):
-			push_error("boneGroups somehow references a different skeleton... " + str(skeleton_path) + " vs " + str(secondary_node.get_path_to(skeleton)))
+		# Gather info
 		var comment: String = sbone.get("comment", "")
 		var stiffness_force = float(sbone.get("stiffiness", 1.0))
 		var gravity_power = float(sbone.get("gravityPower", 0.0))
@@ -768,16 +736,11 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 		var drag_force = float(sbone.get("dragForce", 0.4))
 		var hit_radius = float(sbone.get("hitRadius", 0.02))
 
-		var spring_collider_groups: Array[vrm_collider_group]
-		for cgroup_idx in sbone.get("colliderGroups", []):
-			spring_collider_groups.append(collider_groups[int(cgroup_idx)])
-
-		# Append to indiviudal packed arrays
 		var joint_chains: Array[PackedStringArray]
 		for bone_node in sbone["bones"]:
 			_create_joints_recursive(joint_chains, skeleton, skeleton.find_bone(nodes[int(bone_node)].resource_name), 1, -1)
 
-		# Center commonly points outside of the glTF Skeleton, such as the root node.
+		# Center node info
 		var center_node: NodePath = NodePath()
 		var center_bone: String = ""
 		var center_node_idx = sbone.get("center", -1)
@@ -792,31 +755,54 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 				center_node = (secondary_node.get_path_to(gstate.get_scene_node(int(center_node_idx))))
 				if center_node == NodePath():
 					printerr("Failed to find center scene node " + str(center_node_idx))
-					center_node = secondary_node.get_path_to(secondary_node)  # Fallback
+					center_node = secondary_node.get_path_to(secondary_node)
 
-		for chain in joint_chains:
-			var spring_bone: vrm_spring_bone = vrm_spring_bone.new()
-			spring_bone.comment = comment
-			spring_bone.center_bone = center_bone
-			spring_bone.center_node = center_node
-			spring_bone.collider_groups = spring_collider_groups
-			for bone_name in chain:
-				spring_bone.joint_nodes.push_back(bone_name)  # end bone will be named ""
-			spring_bone.stiffness_scale = stiffness_force
-			spring_bone.gravity_scale = gravity_power
-			spring_bone.gravity_dir_default = gravity_dir
-			spring_bone.drag_force_scale = drag_force
-			spring_bone.hit_radius_scale = hit_radius
+		# Add colliders to main spring node
+		for cgroup_idx in sbone.get("colliderGroups", []):
+			if not added_colliders.has(cgroup_idx):
+				var node: int = vrm_extension["secondaryAnimation"]["colliderGroups"][cgroup_idx].get("node", -1)
+				var collider_gltf_node: GLTFNode = nodes[node]
+				var collider_bone_name = collider_gltf_node.resource_name
+				for collider_info in vrm_extension["secondaryAnimation"]["colliderGroups"][cgroup_idx]["colliders"]:
+					var collider: SpringBoneCollisionSphere3D = SpringBoneCollisionSphere3D.new()
+					collider.name = collider_bone_name
+					main_spring_bone.add_child(collider, true)
+					collider.bone = skeleton.find_bone(collider_gltf_node.resource_name)
+					var offset_obj = collider_info.get("offset", {"x": 0.0, "y": 0.0, "z": 0.0})
+					var offset_vec: Vector3 = offset_flip * Vector3(offset_obj["x"], offset_obj["y"], offset_obj["z"])
+					offset_vec = pose_diffs[skeleton.find_bone(collider_bone_name)] * offset_vec
+					var radius: float = collider_info.get("radius", 0.0)
+					collider.set_position_offset(offset_vec)
+					collider.bone_name = collider_bone_name
+					collider.owner = skeleton.owner
+					collider.radius = radius
+				added_colliders[cgroup_idx] = true
 
-			if not comment.is_empty():
-				spring_bone.resource_name = comment.split("\n")[0]
-			else:
-				spring_bone.resource_name = chain[0]
+		main_spring_bone.setting_count += joint_chains.size()
+		for chain_i in range(joint_chains.size()):
+			var chain: Array = joint_chains[chain_i]
+			main_spring_bone.set_center_bone_name(chain_i, center_bone)
+			var root_bone = skeleton.find_bone(chain.front())
+			var end_bone = skeleton.find_bone(chain.back())
+			main_spring_bone.set_root_bone(chain_i, root_bone)
+			main_spring_bone.set_root_bone_name(chain_i, chain.front())
+			main_spring_bone.set_end_bone(chain_i, end_bone)
+			main_spring_bone.set_end_bone_name(chain_i, chain.back())
+			main_spring_bone.individual_config = false
+			main_spring_bone.set_stiffness(chain_i, stiffness_force)
+			main_spring_bone.set_gravity(chain_i, gravity_power)
+			main_spring_bone.set_gravity_direction(chain_i, gravity_dir)
+			main_spring_bone.set_drag(chain_i, drag_force)
+			main_spring_bone.set_radius(chain_i, hit_radius)
 
-			spring_bones.append(spring_bone)
+			if is_vrm_0:
+				main_spring_bone.set_extend_end_bone(chain_i, true)
+				main_spring_bone.set_end_bone_tip_radius(chain_i, 0.07)
 
+	# Set up the secondary node
 	secondary_node.set_script(vrm_secondary)
 	secondary_node.set("skeleton", skeleton_path)
+	# Store only one spring bone node
 	secondary_node.set("spring_bones", spring_bones)
 
 
@@ -970,7 +956,7 @@ func _import_post(gstate: GLTFState, node: Node) -> Error:
 	root_node.set("vrm_meta", vrm_meta)
 
 	if vrm_extension.has("secondaryAnimation") and (vrm_extension["secondaryAnimation"].get("colliderGroups", []).size() > 0 or vrm_extension["secondaryAnimation"].get("boneGroups", []).size() > 0):
-		var secondary_node: Node = root_node.get_node("secondary")
+		var secondary_node: Node = root_node.get_node_or_null("secondary")
 		if secondary_node == null:
 			secondary_node = Node3D.new()
 			root_node.add_child(secondary_node, true)

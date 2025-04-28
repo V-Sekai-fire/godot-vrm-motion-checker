@@ -5,7 +5,6 @@ const vrm_meta_class = preload("../vrm_meta.gd")
 const vrm_secondary = preload("../vrm_secondary.gd")
 const vrm_top_level = preload("../vrm_toplevel.gd")
 
-const vrm_spring_bone = preload("../vrm_spring_bone.gd")
 const vrm_collider_group = preload("../vrm_collider_group.gd")
 const vrm_collider = preload("../vrm_collider.gd")
 
@@ -103,7 +102,7 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 				collider_group.colliders.append(colliders[int(collider_node)])
 		collider_groups.append(collider_group)
 
-	var spring_bones: Array[vrm_spring_bone] = []
+	var spring_bones: Array[SpringBoneSimulator3D] = []
 	for sbone in vrm_extension.get("springs", []):
 		if sbone.get("joints", []).size() == 0:
 			continue
@@ -112,8 +111,10 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 		var gltfnode: GLTFNode = nodes[int(first_bone_node)]
 		if skeleton != _get_skel_godot_node(gstate, nodes, skeletons, gltfnode.skeleton):
 			push_error("VRM1: spring joint points to differnt skeleton")
-
-		var spring_bone: vrm_spring_bone = vrm_spring_bone.new()
+		
+		var spring_bone: SpringBoneSimulator3D = SpringBoneSimulator3D.new()
+		skeleton.add_child(spring_bone)
+		spring_bone.owner = skeleton.owner
 		spring_bone.comment = sbone.get("name", "")
 		spring_bone.hit_radius_scale = 0
 		spring_bone.stiffness_scale = 0
@@ -287,7 +288,7 @@ static func _get_humanoid_skel(root_node: Node3D) -> Skeleton3D:
 func _export_post(state: GLTFState):
 	var secondary: vrm_secondary = state.get_additional_data("VRMC_springBone")
 	var collider_groups: Array[vrm_collider_group]
-	var spring_bones: Array[vrm_spring_bone] = secondary.spring_bones
+	var spring_bones: Array[SpringBoneSimulator3D] = secondary.spring_bones
 	var skel: Skeleton3D = secondary.get_node(secondary.skeleton)
 
 	var unique_collider_groups: Dictionary = {}

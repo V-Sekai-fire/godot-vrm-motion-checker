@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://odufbf21udn2"]
+[gd_scene load_steps=36 format=3 uid="uid://odufbf21udn2"]
 
 [ext_resource type="PackedScene" uid="uid://ekd4qire07qr" path="res://fire_motion_check/art/three_girl/three-vrm-girl.vrm" id="1_sxngw"]
 [ext_resource type="Animation" uid="uid://dfs1e4v0fsejx" path="res://fire_motion_check/art/ANIM_fire_まなこ×やっこ】CALL ME CALL ME　踊ってみた【オリジナル振付】/Dance_scene.res" id="2_add43"]
@@ -652,152 +652,165 @@ _data = {
 
 [sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_add43"]
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_add43"]
-animation = &"RESET"
-
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_46keh"]
+animation = &"Extra"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_og6qe"]
 animation = &"Dances/Dance_scene"
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_add43"]
-graph_offset = Vector2(-55.9174, -11.9917)
-nodes/output/position = Vector2(640, 40)
+nodes/output/position = Vector2(700, 180)
+nodes/Animation/node = SubResource("AnimationNodeAnimation_og6qe")
+nodes/Animation/position = Vector2(160, 100)
 nodes/Add2/node = SubResource("AnimationNodeAdd2_add43")
-nodes/Add2/position = Vector2(420, 20)
-nodes/Dance_scene/node = SubResource("AnimationNodeAnimation_46keh")
-nodes/Dance_scene/position = Vector2(120, 60)
-nodes/Animation/node = SubResource("AnimationNodeAnimation_add43")
-nodes/Animation/position = Vector2(120, 320)
-node_connections = [&"output", 0, &"Add2", &"Add2", 0, &"Dance_scene", &"Add2", 1, &"Animation"]
+nodes/Add2/position = Vector2(480, 160)
+"nodes/Animation 2/node" = SubResource("AnimationNodeAnimation_46keh")
+"nodes/Animation 2/position" = Vector2(200, 280)
+node_connections = [&"output", 0, &"Add2", &"Add2", 0, &"Animation", &"Add2", 1, &"Animation 2"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_46keh"]
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_og6qe"]
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_add43"]
+states/BlendTree/node = SubResource("AnimationNodeBlendTree_add43")
+states/BlendTree/position = Vector2(541, 100)
+states/Start/position = Vector2(199, 100)
+transitions = ["Start", "BlendTree", SubResource("AnimationNodeStateMachineTransition_46keh"), "BlendTree", "End", SubResource("AnimationNodeStateMachineTransition_og6qe")]
 
 [node name="three-vrm-girl" instance=ExtResource("1_sxngw")]
 
 [node name="GeneralSkeleton" parent="Root_" index="0"]
-bones/0/position = Vector3(3.29875, 0.848697, 20.1799)
-bones/0/rotation = Quaternion(0.0262155, 0.995938, 0.0765125, 0.0395669)
-bones/1/rotation = Quaternion(0.137444, 0.0100019, -0.00311941, 0.990454)
-bones/2/rotation = Quaternion(-0.00681571, 0.0150379, 0.00643319, 0.999843)
-bones/3/rotation = Quaternion(0.000395235, 9.95868e-05, -0.000104971, 1)
-bones/8/rotation = Quaternion(-0.0265631, 0.0289639, 0.005733, 0.999211)
-bones/9/rotation = Quaternion(-0.146324, 0.0295713, 0.000546075, 0.988795)
+bones/0/position = Vector3(4.08875, 0.852175, 18.9122)
+bones/0/rotation = Quaternion(0.0110717, -0.998537, -0.0402276, 0.0344013)
+bones/1/rotation = Quaternion(0.0859859, 0.00495071, 0.00467724, 0.996273)
+bones/2/rotation = Quaternion(-0.00830033, 0.00511231, 0.00370202, 0.999946)
+bones/3/rotation = Quaternion(0.000183585, 0.000101142, -8.20982e-05, 1)
+bones/8/rotation = Quaternion(-0.0145364, 0.0115574, 0.00350923, 0.999821)
+bones/9/rotation = Quaternion(-0.147033, 0.0125748, 0.0116533, 0.988983)
 bones/10/rotation = Quaternion(0.707107, 0, 0, 0.707107)
 bones/11/rotation = Quaternion(0.707107, 0, 0, 0.707107)
-bones/82/rotation = Quaternion(0.675402, 0.317682, 0.460952, -0.480034)
-bones/83/rotation = Quaternion(0.125391, 0.898332, -0.4188, -0.043395)
-bones/88/rotation = Quaternion(0.288094, -0.474305, 0.461991, 0.69181)
-bones/89/rotation = Quaternion(0.0289116, 0.7586, 0.42115, 0.496309)
-bones/90/rotation = Quaternion(0.0656523, -0.00191315, 0.0239117, 0.997554)
-bones/91/rotation = Quaternion(0.113502, 2.74806e-06, 5.22224e-05, 0.993538)
-bones/92/rotation = Quaternion(0.0997777, 3.03678e-06, 4.60673e-05, 0.99501)
-bones/94/rotation = Quaternion(0.172574, 0.00833175, -0.0737024, 0.9822)
-bones/95/rotation = Quaternion(0.0951503, 3.22482e-07, 4.30717e-05, 0.995463)
-bones/96/rotation = Quaternion(0.177394, 1.49305e-07, 8.01699e-05, 0.98414)
-bones/98/rotation = Quaternion(0.0533883, 0.00634891, -0.0140253, 0.998455)
-bones/99/rotation = Quaternion(0.0443362, -1.42834e-06, 1.95728e-05, 0.999017)
-bones/100/rotation = Quaternion(0.126667, -1.00034e-06, 5.68761e-05, 0.991945)
-bones/102/rotation = Quaternion(0.174037, 0.0117888, -0.0624194, 0.982688)
-bones/103/rotation = Quaternion(0.053772, 5.50194e-07, 2.45081e-05, 0.998553)
-bones/104/rotation = Quaternion(0.125849, 4.98664e-07, 5.69647e-05, 0.992049)
-bones/106/rotation = Quaternion(-0.369712, 0.510957, 0.275221, 0.725596)
+bones/82/rotation = Quaternion(0.699549, 0.261514, 0.390399, -0.538359)
+bones/83/rotation = Quaternion(0.102084, 0.97632, -0.186442, -0.0402253)
+bones/88/rotation = Quaternion(0.429324, -0.231979, 0.744755, 0.455199)
+bones/89/rotation = Quaternion(0.0117628, 0.832255, 0.321868, 0.451236)
+bones/90/rotation = Quaternion(0.0599956, -0.00190475, 0.0223721, 0.997946)
+bones/91/rotation = Quaternion(0.0779187, 3.25702e-06, 3.63178e-05, 0.99696)
+bones/92/rotation = Quaternion(0.0588113, 3.56934e-06, 2.77633e-05, 0.998269)
+bones/94/rotation = Quaternion(0.16229, 0.0228418, -0.119326, 0.979235)
+bones/95/rotation = Quaternion(0.100065, 3.23384e-07, 4.52707e-05, 0.994981)
+bones/96/rotation = Quaternion(0.0929378, 2.77956e-07, 4.20469e-05, 0.995672)
+bones/98/rotation = Quaternion(0.0467964, 0.0133826, -0.0383544, 0.998078)
+bones/99/rotation = Quaternion(0.0586207, -1.37167e-06, 2.60501e-05, 0.99828)
+bones/100/rotation = Quaternion(0.0610097, -1.33156e-06, 2.71022e-05, 0.998137)
+bones/102/rotation = Quaternion(0.139684, 0.0237538, -0.0977357, 0.985075)
+bones/103/rotation = Quaternion(0.0527318, 5.48377e-07, 2.40253e-05, 0.998609)
+bones/104/rotation = Quaternion(0.0969549, 5.31069e-07, 4.395e-05, 0.995289)
+bones/106/rotation = Quaternion(-0.382813, 0.497851, 0.279687, 0.726205)
 bones/106/scale = Vector3(1, 0.998785, 0.998785)
-bones/107/rotation = Quaternion(0.363748, 0.154802, -0.00308111, 0.918539)
-bones/108/rotation = Quaternion(0.242954, 0.0937186, -0.00456573, 0.965489)
-bones/110/rotation = Quaternion(0.588615, -0.433297, -0.577583, -0.363571)
-bones/111/rotation = Quaternion(-0.163761, 0.89206, -0.39877, 0.135624)
-bones/116/rotation = Quaternion(0.00190673, 0.567988, -0.00267411, 0.82303)
-bones/117/rotation = Quaternion(0.160377, -0.764053, 0.0118517, 0.62479)
-bones/118/rotation = Quaternion(0.16258, -0.0152287, 0.00733893, 0.986551)
-bones/119/rotation = Quaternion(0.279463, 5.43389e-07, -0.000129884, 0.960156)
-bones/120/rotation = Quaternion(0.191484, 1.68553e-06, -8.8533e-05, 0.981496)
-bones/122/rotation = Quaternion(0.178551, 0.0118334, 0.00808232, 0.983826)
-bones/123/rotation = Quaternion(0.20326, -2.02409e-06, -0.000107947, 0.979125)
-bones/124/rotation = Quaternion(0.186475, 9.52948e-07, -8.64945e-05, 0.98246)
-bones/126/rotation = Quaternion(0.103889, -0.00797986, 0.0126968, 0.994476)
-bones/127/rotation = Quaternion(0.202446, 2.07859e-08, -9.42234e-05, 0.979293)
-bones/128/rotation = Quaternion(0.180469, -3.24081e-06, -6.66084e-05, 0.983581)
-bones/130/rotation = Quaternion(0.16712, -0.000801089, 0.0248799, 0.985622)
-bones/131/rotation = Quaternion(0.200636, -1.44644e-06, -9.38759e-05, 0.979666)
-bones/132/rotation = Quaternion(0.196096, -1.59693e-06, -9.17597e-05, 0.980585)
-bones/134/rotation = Quaternion(-0.401482, -0.478701, -0.285581, 0.726706)
+bones/107/rotation = Quaternion(0.360001, 0.152898, -0.00312967, 0.920333)
+bones/108/rotation = Quaternion(0.286922, 0.115884, -0.00404168, 0.95091)
+bones/110/rotation = Quaternion(0.682704, -0.303753, -0.444309, -0.494205)
+bones/111/rotation = Quaternion(-0.0733472, 0.986229, -0.148163, -0.00457183)
+bones/116/rotation = Quaternion(0.416405, 0.245313, -0.768983, 0.418442)
+bones/117/rotation = Quaternion(-0.0749701, -0.794454, -0.403785, 0.447415)
+bones/118/rotation = Quaternion(0.137713, -0.0109821, -0.000173898, 0.990411)
+bones/119/rotation = Quaternion(0.228007, 1.24231e-06, -0.000105763, 0.973659)
+bones/120/rotation = Quaternion(0.190101, 1.68847e-06, -8.78831e-05, 0.981765)
+bones/122/rotation = Quaternion(0.134815, -0.0458307, 0.188638, 0.971669)
+bones/123/rotation = Quaternion(0.0997132, 7.60628e-08, -5.9703e-05, 0.995016)
+bones/124/rotation = Quaternion(-0.0284428, 2.36999e-06, 1.40032e-05, 0.999595)
+bones/126/rotation = Quaternion(0.0325056, -0.0226648, 0.0712005, 0.996675)
+bones/127/rotation = Quaternion(0.0673221, -1.2268e-08, -3.13492e-05, 0.997731)
+bones/128/rotation = Quaternion(-0.0371521, 5.50794e-07, 3.49376e-05, 0.99931)
+bones/130/rotation = Quaternion(0.0898804, -0.0411599, 0.149146, 0.983861)
+bones/131/rotation = Quaternion(0.0425644, -3.44676e-06, -2.09562e-05, 0.999094)
+bones/132/rotation = Quaternion(0.0509884, -3.42881e-06, -2.48413e-05, 0.998699)
+bones/134/rotation = Quaternion(-0.393353, -0.488378, -0.277574, 0.727814)
 bones/134/scale = Vector3(1, 0.998785, 0.998785)
-bones/135/rotation = Quaternion(0.350698, -0.14817, 0.00323771, 0.924687)
-bones/136/rotation = Quaternion(0.37949, -0.162807, 0.00287595, 0.910754)
-bones/138/rotation = Quaternion(0.155598, 0.0536596, 0.976137, -0.141659)
-bones/145/rotation = Quaternion(0.040389, 0.95988, -0.259235, 0.0989723)
-bones/146/rotation = Quaternion(-0.00929346, 0.686155, -0.727347, -0.00842274)
-bones/147/rotation = Quaternion(1.38619e-08, 0.999994, -0.00352077, 1.91528e-08)
-bones/149/rotation = Quaternion(-0.0996636, -0.0487309, 0.990892, 0.0763235)
-bones/156/rotation = Quaternion(-0.00594501, 0.997522, -0.012193, -0.069032)
-bones/157/rotation = Quaternion(-0.00532115, 0.715284, -0.69849, 0.0212608)
-bones/158/rotation = Quaternion(-6.02015e-09, 0.999858, 0.0168519, -2.35273e-08)
+bones/135/rotation = Quaternion(0.353665, -0.149676, 0.00319952, 0.923313)
+bones/136/rotation = Quaternion(0.334288, -0.139848, 0.00346022, 0.932031)
+bones/138/rotation = Quaternion(0.0776085, 0.0529294, 0.992774, -0.0746628)
+bones/145/rotation = Quaternion(0.0114178, 0.983612, -0.169272, 0.0610193)
+bones/146/rotation = Quaternion(0.0282574, 0.664266, -0.7467, -0.0197591)
+bones/147/rotation = Quaternion(8.8991e-09, 0.999988, -0.00484861, -3.75759e-09)
+bones/149/rotation = Quaternion(-0.0640717, -0.0677514, 0.994662, 0.0441713)
+bones/156/rotation = Quaternion(4.95553e-05, 0.997562, 0.0579397, -0.038891)
+bones/157/rotation = Quaternion(0.0274789, 0.742539, -0.669197, -0.00749361)
+bones/158/rotation = Quaternion(3.49782e-09, 0.999857, 0.0169129, -1.74174e-09)
 
 [node name="Head" parent="Root_/GeneralSkeleton" index="6"]
-transform = Transform3D(-0.992847, 0.0983843, -0.0676379, 0.0791641, 0.966564, 0.243899, 0.0893722, 0.2368, -0.967439, 3.33082, 1.32686, 20.1588)
+transform = Transform3D(-0.990328, 0.0545142, -0.127589, 0.0217442, 0.969196, 0.245328, 0.137032, 0.240181, -0.961007, 4.08283, 1.33115, 18.8983)
 
 [node name="Head" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="0"]
-transform = Transform3D(-0.992847, 0.0983843, -0.0676379, 0.0791641, 0.966564, 0.243899, 0.0893722, 0.2368, -0.967439, 3.34154, 1.42069, 20.1947)
+transform = Transform3D(-0.990328, 0.0545142, -0.127589, 0.0217442, 0.969196, 0.245328, 0.137032, 0.240181, -0.961007, 4.08989, 1.42523, 18.9344)
 
 [node name="LeftUpperArm" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="1"]
-transform = Transform3D(0.114571, -0.430043, 0.895509, -0.00262119, -0.901573, -0.43262, 0.993412, 0.0472182, -0.104421, 3.2345, 1.19003, 20.1949)
+transform = Transform3D(0.444413, -0.681784, 0.581092, 0.104898, -0.604601, -0.789591, 0.889659, 0.41186, -0.197175, 4.00571, 1.18789, 18.9575)
 
 [node name="LeftUpperArm2" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="2"]
-transform = Transform3D(0.114571, -0.430043, 0.895509, -0.00262119, -0.901573, -0.43262, 0.993412, 0.0472182, -0.104421, 3.20534, 1.12098, 20.1974)
+transform = Transform3D(0.444413, -0.681784, 0.581092, 0.104898, -0.604601, -0.789591, 0.889659, 0.41186, -0.197175, 3.95638, 1.13977, 18.9871)
 
 [node name="LeftUpperArm3" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="3"]
-transform = Transform3D(0.114571, -0.430043, 0.895509, -0.00262119, -0.901573, -0.43262, 0.993412, 0.0472182, -0.104421, 3.17617, 1.05193, 20.2)
+transform = Transform3D(0.444413, -0.681784, 0.581092, 0.104898, -0.604601, -0.789591, 0.889659, 0.41186, -0.197175, 3.90705, 1.09166, 19.0168)
 
 [node name="RightUpperArm" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="4"]
-transform = Transform3D(-0.425327, 0.241186, -0.872311, 0.0564915, -0.954883, -0.291561, -0.903275, -0.173287, 0.392512, 3.4089, 1.1732, 20.1686)
+transform = Transform3D(0.218872, 0.803268, -0.553946, -0.0189442, -0.564106, -0.825485, -0.97557, 0.19117, -0.10825, 4.17439, 1.1844, 18.9301)
 
 [node name="RightUpperArm2" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="5"]
-transform = Transform3D(-0.425327, 0.241186, -0.872311, 0.0564915, -0.954883, -0.291561, -0.903275, -0.173287, 0.392512, 3.42366, 1.10069, 20.1564)
+transform = Transform3D(0.218872, 0.803268, -0.553946, -0.0189442, -0.564106, -0.825485, -0.97557, 0.19117, -0.10825, 4.23277, 1.13925, 18.9434)
 
 [node name="RightUpperArm3" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="6"]
-transform = Transform3D(-0.425327, 0.241186, -0.872311, 0.0564915, -0.954883, -0.291561, -0.903275, -0.173287, 0.392512, 3.43842, 1.02817, 20.1442)
+transform = Transform3D(0.218872, 0.803268, -0.553946, -0.0189442, -0.564106, -0.825485, -0.97557, 0.19117, -0.10825, 4.29115, 1.0941, 18.9567)
 
 [node name="LeftLowerArm" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="7"]
-transform = Transform3D(0.682812, -0.315127, 0.659138, -0.729308, -0.34752, 0.589356, 0.0433419, -0.883134, -0.467115, 3.14003, 0.992067, 20.2024)
+transform = Transform3D(0.071443, -0.0376445, 0.996734, -0.983948, 0.161172, 0.0766136, -0.163529, -0.986208, -0.0255257, 3.85498, 1.0547, 19.0454)
 
 [node name="LeftLowerArm2" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="8"]
-transform = Transform3D(0.682812, -0.315127, 0.659138, -0.729308, -0.34752, 0.589356, 0.0433419, -0.883134, -0.467115, 3.12711, 0.977095, 20.1565)
+transform = Transform3D(0.071443, -0.0376445, 0.996734, -0.983948, 0.161172, 0.0766136, -0.163529, -0.986208, -0.0255257, 3.85721, 1.06294, 18.9961)
 
 [node name="LeftLowerArm3" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="9"]
-transform = Transform3D(0.682812, -0.315127, 0.659138, -0.729308, -0.34752, 0.589356, 0.0433419, -0.883134, -0.467115, 3.11419, 0.962123, 20.1105)
+transform = Transform3D(0.071443, -0.0376445, 0.996734, -0.983948, 0.161172, 0.0766136, -0.163529, -0.986208, -0.0255257, 3.85944, 1.07118, 18.9468)
 
 [node name="LeftLowerArm4" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="10"]
-transform = Transform3D(0.682812, -0.315127, 0.659138, -0.729308, -0.34752, 0.589356, 0.0433419, -0.883134, -0.467115, 3.10128, 0.94715, 20.0646)
+transform = Transform3D(0.071443, -0.0376445, 0.996734, -0.983948, 0.161172, 0.0766136, -0.163529, -0.986208, -0.0255257, 3.86167, 1.07942, 18.8976)
 
 [node name="RightLowerArm" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="11"]
-transform = Transform3D(0.66414, 0.238299, -0.708613, 0.294772, -0.954521, -0.0447239, -0.687043, -0.179176, -0.704179, 3.46041, 0.963728, 20.1281)
+transform = Transform3D(0.0493212, -0.22377, -0.973393, 0.95165, 0.306381, -0.0222134, 0.3032, -0.925234, 0.228062, 4.35115, 1.06034, 18.9692)
 
 [node name="RightLowerArm2" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="12"]
-transform = Transform3D(0.66414, 0.238299, -0.708613, 0.294772, -0.954521, -0.0447239, -0.687043, -0.179176, -0.704179, 3.4693, 0.915948, 20.1164)
+transform = Transform3D(0.0493212, -0.22377, -0.973393, 0.95165, 0.306381, -0.0222134, 0.3032, -0.925234, 0.228062, 4.33599, 1.07541, 18.924)
 
 [node name="RightLowerArm3" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="13"]
-transform = Transform3D(0.66414, 0.238299, -0.708613, 0.294772, -0.954521, -0.0447239, -0.687043, -0.179176, -0.704179, 3.47818, 0.868168, 20.1046)
+transform = Transform3D(0.0493212, -0.22377, -0.973393, 0.95165, 0.306381, -0.0222134, 0.3032, -0.925234, 0.228062, 4.32083, 1.09048, 18.8788)
 
 [node name="RightLowerArm4" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="14"]
-transform = Transform3D(0.66414, 0.238299, -0.708613, 0.294772, -0.954521, -0.0447239, -0.687043, -0.179176, -0.704179, 3.48707, 0.820388, 20.0929)
+transform = Transform3D(0.0493212, -0.22377, -0.973393, 0.95165, 0.306381, -0.0222134, 0.3032, -0.925234, 0.228062, 4.30567, 1.10555, 18.8336)
 
 [node name="LeftHand" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="15"]
-transform = Transform3D(-0.971125, -0.01822, 0.237874, -0.221155, 0.442722, -0.868958, -0.0894797, -0.896474, -0.433968, 3.08592, 0.936984, 19.9878)
+transform = Transform3D(-0.795088, 0.495396, -0.349881, 0.575993, 0.436142, -0.691384, -0.189911, -0.751241, -0.632116, 3.87568, 1.09768, 18.8195)
 
 [node name="RightHand" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="16"]
-transform = Transform3D(-0.845575, -0.0758003, -0.528449, 0.127449, -0.989909, -0.0619398, -0.518421, -0.119725, 0.846703, 3.49554, 0.739412, 20.0746)
+transform = Transform3D(-0.725743, -0.683797, 0.0756231, -0.651291, 0.647479, -0.395715, 0.221624, -0.33644, -0.915255, 4.27136, 1.13673, 18.7691)
 
 [node name="UpperChest" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="17"]
-transform = Transform3D(-0.997351, 0.0702542, 0.0188612, 0.0678101, 0.991782, -0.108493, -0.0263283, -0.106926, -0.993918, 3.31817, 1.13991, 20.1412)
+transform = Transform3D(-0.996147, -0.0140067, -0.0865757, -0.00737046, 0.997042, -0.0765014, 0.0873912, -0.0755685, -0.993304, 4.08199, 1.14469, 18.8767)
 
 [node name="UpperChest2" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="18"]
-transform = Transform3D(-0.997351, 0.0702542, 0.0188612, 0.0678101, 0.991782, -0.108493, -0.0263283, -0.106926, -0.993918, 3.27159, 1.2037, 20.1709)
+transform = Transform3D(-0.996147, -0.0140067, -0.0865757, -0.00737046, 0.997042, -0.0765014, 0.0873912, -0.0755685, -0.993304, 4.03463, 1.20383, 18.9139)
 
 [node name="UpperChest3" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="19"]
-transform = Transform3D(-0.997351, 0.0702542, 0.0188612, 0.0678101, 0.991782, -0.108493, -0.0263283, -0.106926, -0.993918, 3.37133, 1.19692, 20.1736)
+transform = Transform3D(-0.996147, -0.0140067, -0.0865757, -0.00737046, 0.997042, -0.0765014, 0.0873912, -0.0755685, -0.993304, 4.13424, 1.20456, 18.9052)
 
 [node name="Spine" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="20"]
-transform = Transform3D(-0.997146, 0.0580748, 0.0482367, 0.0517677, 0.991051, -0.12304, -0.0549506, -0.120192, -0.991229, 3.30201, 0.902395, 20.1784)
+transform = Transform3D(-0.996862, -0.0225369, -0.0758881, -0.0154619, 0.995587, -0.0925584, 0.0776392, -0.0910946, -0.992811, 4.08704, 0.905686, 18.9067)
 
 [node name="Neck" parent="Root_/GeneralSkeleton/SpringBoneSimulator3D" index="21"]
-transform = Transform3D(-0.996013, 0.0821167, -0.0348692, 0.0838414, 0.995159, -0.0512757, 0.0304898, -0.0539947, -0.998076, 3.32694, 1.28258, 20.1537)
+transform = Transform3D(-0.99394, -0.00416598, -0.109844, 0.00106894, 0.998868, -0.0475558, 0.109918, -0.047385, -0.992811, 4.08219, 1.28673, 18.893)
 
 [node name="AnimationPlayer" parent="." index="1"]
 libraries = {
@@ -807,6 +820,6 @@ libraries = {
 autoplay = "Dances/Dance_scene"
 
 [node name="AnimationTree" type="AnimationTree" parent="." index="3"]
-tree_root = SubResource("AnimationNodeBlendTree_add43")
+tree_root = SubResource("AnimationNodeStateMachine_add43")
 anim_player = NodePath("../AnimationPlayer")
-parameters/Add2/add_amount = 0.01
+parameters/BlendTree/Add2/add_amount = 0.01

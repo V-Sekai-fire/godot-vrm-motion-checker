@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://nmlnyevkcpvw"]
+
+[ext_resource type="PackedScene" uid="uid://sm5yb36eotc6" path="res://fire_motion_check/art/VRM1_Constraint_Twist_Sample/VRM1_Constraint_Twist_Sample.vrm" id="1_qws74"]
+
+[node name="VRM1_Constraint_Twist_Sample" instance=ExtResource("1_qws74")]
+
+[node name="BoneNodeConstraintApplier" parent="." index="2"]
+skeleton = NodePath("../Root/Skeleton3D")
